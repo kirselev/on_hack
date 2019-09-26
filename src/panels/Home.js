@@ -1,7 +1,11 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Panel, ListItem, Button, Group, Div, Avatar, PanelHeader } from '@vkontakte/vkui';
+import { Panel, ListItem, Button, Group, List, Cell, HeaderContext,
+	Div, Avatar, PanelHeader } from '@vkontakte/vkui';
 import './Persik.css';
+import Icon24Settings from '@vkontakte/icons/dist/24/settings';
+import Icon24Done from '@vkontakte/icons/dist/24/done';
+import Icon24Users from '@vkontakte/icons/dist/24/users';
 
 const Home = ({ id, go, fetchedUser, player }) => (
 	<Panel id={id}>
@@ -18,18 +22,13 @@ const Home = ({ id, go, fetchedUser, player }) => (
 
 		<Group title="Navigation Example">
 			<Div>
-				<Button size="xl" level="2" onClick={go} data-to="scaner">
+				<Button size="xl" level="2" onClick={go} data-to="audio">
 					Show me the Scaner, please
 				</Button>
 			</Div>
 			<Div>
 				<Button size="xl" level="2" onClick={go} data-to="audio">
 					Show me the Audio, please
-				</Button>
-			</Div>
-			<Div>
-				<Button size="xl" level="2" onClick={go} data-to="geo">
-					Show me the Geo, please
 				</Button>
 			</Div>
 			<Div>

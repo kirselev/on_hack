@@ -1,64 +1,109 @@
 import React from 'react';
 import connect from '@vkontakte/vk-connect';
 import '@vkontakte/vkui/dist/vkui.css';
-import {Panel, Div, Group,Cell, PanelHeader, HeaderButton, ListItem, platform, IOS} from '@vkontakte/vkui';
+import {Panel, Div, Group,Cell, PanelHeader, Button, List, ANDROID, View, FormLayout, Select, CellButton,
+  HeaderButton, ListItem, platform, IOS, } from '@vkontakte/vkui';
 import './Persik.css';
 import persik from '../img/persik.png';
 import Icon28ChevronBack from '@vkontakte/icons/dist/28/chevron_back';
 import Icon24Back from '@vkontakte/icons/dist/24/back';
 import PropTypes from 'prop-types';
-import { YMaps, Map } from 'react-yandex-maps';
+import Clock from './Clock'
+import { YMaps, Map, Placemark } from 'react-yandex-maps';
 
 const osname = platform();
 
+function FormattedGeo(props) {
+  return <Div> long: {props.data.long}, lat: {props.data.lat}. </Div>
+}
+
 class Maps extends React.Component {
   constructor(props) {
-  super(props);
+    super(props);
     this.state = {
-      type: 111,
-      available: 0,
-      long: 22,
-      lat: 53,
+      firstEntry: true, // Решает баг с постоянно всплывающим предложением разрешить доступ к гео
+      lat: 0,
+      long: 0,
+      currentGeo: null,
+      coordinates: null,
+      draggingList: [2, 3, 1, 4, 5],
+      activePanel: 'start',
     };
- }
 
-
-  componentDidMount() {
-  connect.subscribe((e) => {
-   switch (e.detail.type) {
-    case 'VKWebAppGeodataResult':
-     this.setState({ available: e.detail.data.available,
+    connect.subscribe((e) => {
+      switch (e.detail.type) {
+        case 'VKWebAppGeodataResult':
+          this.setState({
             lat: e.detail.data.lat,
-            long: e.detail.data.long});
-     break;
-    default:
-     console.log(e.detail.type);
-   }
-  });
+            long: e.detail.data.long,
+            firstEntry: false,
+            currentGeo : { center: [e.detail.data.lat, e.detail.data.long], zoom: 15 },
+            coordinates : [[e.detail.data.lat, e.detail.data.long]],
+
+          });
+          break;
+        default:
+          console.log("error");
+      }
+      connect.send("VKWebAppGetGeodata", {});
+    });
+
+  }
+  componentDidMount() {
+    this.timerID = setInterval(
+      () => this.tick(),
+      1000
+    );
+  }
+
+  componentWillUnmount() {
+    clearInterval(this.timerID);
+  }
+
+  tick() {
     connect.send("VKWebAppGetGeodata", {});
- }
+  }
+
 
   render(){
     return (
-      <Panel id={this.props.id}>
-      <PanelHeader
-       left={<HeaderButton onClick={this.props.go} data-to="home">
-        {osname === IOS ? <Icon28ChevronBack/> : <Icon24Back/>}
-       </HeaderButton>}
-      >
-       Ну шо?
-      </PanelHeader>
+      <View activePanel={this.state.activePanel}>
+        <Panel id= "start">
+        <PanelHeader
+    			left={<HeaderButton expandable onClick={() => this.setState({ activePanel: 'nothing' })}>
+    				{osname === IOS ? <Icon28ChevronBack/> : <Icon24Back/>}
+    			</HeaderButton>}
+    		>
+    			Время и Гео1
+    		</PanelHeader>
+          <Group title="Интересные места">
+            {this.state.currentGeo && <YMaps>
+              <Div>
+                <Map defaultState={this.state.currentGeo}>
+                  {this.state.coordinates.map(coordinate => (<Placemark geometry={coordinate} />))}
+                </Map>
+              </Div>
+            </YMaps>}
+          </Group>
 
-        <Group title="QR Data Fetched with VK Connect">
-          <YMaps>
-            <Div>
-              My awesome application with maps!
-              <Map defaultState={{ center: [this.state.long, this.state.lat], zoom: 9 }} />
-            </Div>
-          </YMaps>
-        </Group>
-        {this.props.player}
-     </Panel>
+
+            <Cell expandable onClick={() => this.setState({ activePanel: 'nothing' })}>Построить маршрут</Cell>
+
+
+
+
+
+
+
+
+
+
+          {this.props.player}
+        </Panel>
+			</View>
+
+
+
     );
   }
 }

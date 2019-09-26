@@ -12,17 +12,16 @@ import Icon24Back from '@vkontakte/icons/dist/24/back';
 import songs from './audio/songs';
 import Sound from 'react-sound';
 import getMP3Duration from 'get-mp3-duration';
+import Start from './panels/Start'
 
 import PlayerControls from './panels/PlayerControls';
 import SongSelector from './panels/SongSelector';
 import Home from './panels/Home';
-import Scaner from './panels/QrScaner';
 import Audio from './panels/Audio';
 import Maps from './panels/Maps';
+import Way from './panels/Way';
+import AddPlace from './panels/AddPlace';
 
-
-
-import Geo from './panels/Geo';
 const MODAL_PAGE_MUSIC = 'music';
 
 const osname = platform();
@@ -34,7 +33,7 @@ class App extends React.Component {
 		super(props);
 
 		this.state = {
-			activePanel: 'home',
+			activePanel: 'start',
 			fetchedUser: null,
 			activeModal: null,
 			modalHistory: [],
@@ -179,40 +178,12 @@ class App extends React.Component {
 			</ModalRoot>
 		);
 
-		const audioPlayer = (
-			<Group>
-				<Div>
-					{this.state.playStatus == Sound.status.PLAYING &&
-						<Sound
-							url={this.state.currentSong.url}
-							playStatus={this.state.playStatus}
-							position={this.state.position}
-							volume={volume}
-							playbackRate={playbackRate}
-							loop={loop}
-							onLoading={({ bytesLoaded, bytesTotal }) => console.log(`${bytesLoaded / bytesTotal * 100}% loaded`)}
-							onLoad={() => console.log('Loaded')}
-							onPlaying={({ position }) => this.setState({ position })}
-							onFinishedPlaying={() => this.setState({ playStatus: Sound.status.STOPPED })}
-						/>
-					}
-				</Div>
-				<FixedLayout vertical="bottom">
-					<Button size="xl" level="secondary" onClick={() => this.setActiveModal(MODAL_PAGE_MUSIC)}>
-							Открыть модальную страницу
-					</Button>
-				</FixedLayout>
-			</Group>
-		);
 
 		return (
 			<View activePanel={this.state.activePanel} modal={modal}>
-				<Home id="home" fetchedUser={this.state.fetchedUser} go={this.go} player={audioPlayer}/>
-				<Scaner id="scaner" go={this.go} player={audioPlayer}/>
-				<Geo id="geo" go={this.go} player={audioPlayer}/>
-				<Audio id="audio" go={this.go} player={audioPlayer}/>
-				<Maps id="maps" go={this.go} player={audioPlayer}/>
-
+				<Start id="start" fetchedUser={this.state.fetchedUser} go={this.go}/>
+				<Way id="way" go={this.go} />
+				<AddPlace id = "add" go={this.go}/>
 			</View>
 		);
 	}
